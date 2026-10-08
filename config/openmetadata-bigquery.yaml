@@ -1,0 +1,39 @@
+# OpenMetadata's official BigQuery metadata-ingestion workflow.
+# Run after OpenMetadata is started:
+#   metadata ingest -c config/openmetadata-bigquery.yaml
+#
+# Keep this ingestion package aligned with the OpenMetadata server version.
+source:
+  type: bigquery
+  serviceName: retail_bigquery
+  serviceConnection:
+    config:
+      type: BigQuery
+      credentials:
+        gcpConfig:
+          type: gcp_adc
+          projectId:
+            - ark-of-data-2000
+  sourceConfig:
+    config:
+      type: DatabaseMetadata
+      includeTables: true
+      includeViews: false
+      databaseFilterPattern:
+        includes:
+          - "^ark-of-data-2000$"
+      schemaFilterPattern:
+        includes:
+          - "^retail_agent_demo$"
+
+sink:
+  type: metadata-rest
+  config: {}
+
+workflowConfig:
+  loggerLevel: INFO
+  openMetadataServerConfig:
+    hostPort: "http://localhost:8585/api"
+    authProvider: openmetadata
+    securityConfig:
+      jwtToken: "${OPENMETADATA_JWT_TOKEN}"

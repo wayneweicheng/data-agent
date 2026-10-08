@@ -1,0 +1,2 @@
+# Keep this package version aligned with the OpenMetadata Docker release.
+openmetadata-ingestion[bigquery]==1.13.0.0

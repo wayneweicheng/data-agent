@@ -1,0 +1,61 @@
+# Curated business metadata for the retail demo.
+# `scripts/openmetadata.py apply` writes this into OpenMetadata.
+# After that, edit descriptions in OpenMetadata and run `sync-agent` to use
+# the current OpenMetadata values as the text-to-SQL agent context.
+service_name: retail_bigquery
+project_id: ark-of-data-2000
+dataset_id: retail_agent_demo
+
+tables:
+  customers:
+    description: >-
+      Customer master data. One row per customer. Use this table for customer
+      segment and region analysis; customer_id joins to orders.customer_id.
+    columns:
+      customer_id: "Stable customer key used to join customers to orders."
+      customer_name: "Customer display name; do not use as a join key."
+      signup_date: "Date the customer created an account."
+      segment: "Marketing segment: new, regular, or loyalist."
+      region: "Customer's sales region: West, South, Northeast, or Midwest."
+  products:
+    description: >-
+      Product catalog with list price and unit cost in USD. Join to order_items
+      on product_id. Use cost to calculate gross profit.
+    columns:
+      product_id: "Stable product key used to join products to order_items."
+      name: "Product display name."
+      category: "Merchandising category: outdoor, fitness, electronics, or lifestyle."
+      unit_price: "List price per unit in USD before the order-level discount."
+      cost: "Unit cost in USD; gross profit subtracts quantity multiplied by cost."
+  orders:
+    description: >-
+      Order header with one row per order. Only completed orders count as sales;
+      cancelled orders must be excluded from revenue, profit, and order counts.
+      Join to order_items on order_id.
+    columns:
+      order_id: "Stable order key used to join orders to order_items and returns."
+      customer_id: "Buyer key used to join orders to customers."
+      order_date: "Date the order was placed."
+      channel: "Acquisition/order channel: web, mobile, store, or partner."
+      status: "Order status. Only completed orders are valid sales."
+      discount_pct: "Fractional order discount; 0.10 means 10 percent."
+  order_items:
+    description: >-
+      Order line items. There can be multiple rows per order, so use
+      COUNT(DISTINCT order_id) for order-level metrics.
+    columns:
+      order_id: "Order key used to join to orders."
+      line_number: "Line number within the order."
+      product_id: "Product key used to join to products."
+      quantity: "Units sold on this line."
+  returns:
+    description: >-
+      Returned units by original order and product. Join on both order_id and
+      product_id. Use this table to calculate return rate and net revenue.
+    columns:
+      return_id: "Stable return key."
+      order_id: "Original order key used to join to orders and order_items."
+      product_id: "Returned product key used to join to products and order_items."
+      return_date: "Date the return was recorded."
+      quantity: "Units returned."
+      reason: "Return reason: size, changed_mind, or damaged."
